@@ -24,7 +24,7 @@ fi
 
 # Define default arguments.
 SCRIPT="build.cake"
-TARGET="virtualbox-local"
+TARGET="hypervstep-local"
 CONFIGURATION="Release"
 VERBOSITY="verbose"
 DRYRUN=

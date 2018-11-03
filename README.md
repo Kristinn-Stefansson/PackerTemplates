@@ -12,7 +12,7 @@
 - [Running the Build Script](#running-the-build-script)
     - [Building Vagrant Cloud Images](#building-vagrant-cloud-images)
     - [Building Hyper-V Images](#building-hyper-v-images)
-    - [Building VirtualBox Images](#building-virtualbox-images)
+    - [Building HyperVStep Images](#building-hypervstep-images)
 - [Using the Vagrant Images](#using-the-vagrant-images)
 
 <!-- /TOC -->
@@ -25,7 +25,7 @@ Interested in some best practices when using Packer with Windows? Check out [my 
 ### Supported Builders
 
 The supported builds are:
-* VirtualBox
+* Hyper-V Incremental builds
 * Hyper-V
 
 ### Supported Operating Systems
@@ -63,7 +63,7 @@ chmod +x build.sh
 Additionally you will need to install:
 
 * Packer
-* VirtualBox
+* Vagrant
 
 ### Windows
 
@@ -78,6 +78,9 @@ iwr https://chocolatey.org/install.ps1 -UseBasicParsing | iex
 
 # Install Packer
 choco install packer -y
+
+# Install Vagrant
+choco install vagrant  -y
 
 # Install Hyper-V
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All
@@ -134,16 +137,16 @@ The following commands will build you Hyper-V Images
 .\build.ps1 -Target "hyperv-vagrant-cloud" --os="Win2012R2Core"
 ```
 
-### Building VirtualBox Images
+### Building HyperVStep Images
 
-The following commands will build you VirtualBox Images
+The following commands will build you HyperVStep Images
 
 ```bash
 # Builds Windows 2016 Standard Core and runs the Vagrant post processor (local).
-./build.sh --target "virtualbox-local" -os="Windows2016StdCore"
+./build.sh --target "hypervstep-local" -os="Windows2016StdCore"
 
 # Builds Windows 2012 R2 Core and runs the Atlas post processor.
-./build.sh --target "virtualbox-vagrant-cloud" -os="Win2012R2Core"
+./build.sh --target "hypervstep-vagrant-cloud" -os="Win2012R2Core"
 ```
 
 ## Using the Vagrant Images

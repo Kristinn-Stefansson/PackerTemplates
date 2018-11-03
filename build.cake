@@ -1,10 +1,13 @@
 #addin "Cake.Incubator"
 #addin "Cake.Yaml"
 #addin "YamlDotNet"
+#addin "Cake.FileHelpers"
 
 // CLI Arguments For Cake Script
-var buildTarget = Argument("target", "virtualbox-local");
+var buildTarget = Argument("target", "hypervstep-local");
 var os = Argument("os","Windows2016StdCore");
+var productKey = Argument("productKey","");
+var ramSize = Argument("ramSize","1024");
 
 // These need to be environment variables if doing a vagrant cloud build
 if (buildTarget.Contains("vagrant-cloud")) {
@@ -13,19 +16,32 @@ if (buildTarget.Contains("vagrant-cloud")) {
   EnvironmentVariable<string>("ATLAS_VERSION");
 }
 
-string virtualBoxBuilderPath = "builders/virtualbox";
+string hypervstepBuilderPath = "builders/hypervstep";
 string hypervBuilderPath = "builders/hyperv";
 
 // load build config yaml
 var OSES = LoadYAMLConfig("./build.supported_os.yaml", os);
+// Arguments passed overwrite YAML
+if(false == String.IsNullOrWhiteSpace(productKey))
+{
+    OSES.productKey = productKey;
+}
+if(false == String.IsNullOrWhiteSpace(ramSize))
+{
+    OSES.ramSize = ramSize;
+}
 
 public class OSToBuild
 {
     public string Name { get; set; }
     public string osName { get; set; }
+    public string ramSize { get; set; }
     public string guestOSType { get; set; }
+    public string imageName { get; set; }
     public string isoURL { get; set; }
     public string isoChecksum { get; set; }
+    public string isoChecksumType { get; set; }
+    public string productKey { get; set; }
 }
 
 public OSToBuild LoadYAMLConfig(string yaml_path, string os)
@@ -49,9 +65,9 @@ public OSToBuild LoadYAMLConfig(string yaml_path, string os)
             throw new System.ArgumentException(exceptionMsg);
         }
     }
-    catch
+    catch(Exception e)
     {
-        throw new System.ArgumentException($"Your YAML file at {yaml_path} is invalid!");
+        throw new System.ArgumentException($"Your YAML file at {yaml_path} is invalid!", e.Message);
     }
 }
 
@@ -82,7 +98,24 @@ public ProcessSettings RunPacker(OSToBuild os, string source_path, string json_f
     source_path_var = "";
   }
 
-  string packer_cmd = $"-var \"os_name={os.osName}\" -var \"iso_checksum={os.isoChecksum}\" -var \"iso_url={os.isoURL}\" -var \"guest_os_type={os.guestOSType}\" -var \"full_os_name={os.Name}\" {source_path_var} {json_file_path}";
+  var autoAttendFile = System.IO.Path.Combine(Environment.CurrentDirectory, "answer_files", os.osName, "Autounattend.xml");
+  var tempFileDir = System.IO.Directory.CreateDirectory(System.IO.Path.Combine(System.IO.Path.GetTempPath(), Guid.NewGuid().ToString(), os.osName));
+  var newAutoattendFile = System.IO.Path.Combine(tempFileDir.FullName, "Autounattend.xml");
+  System.IO.File.Copy(autoAttendFile, newAutoattendFile);
+  Information(newAutoattendFile);
+  autoAttendFile = newAutoattendFile.Replace(@"\", "/");
+    
+  if(false == String.IsNullOrWhiteSpace(os.productKey))
+  {
+    Context.ReplaceRegexInFiles(newAutoattendFile, @"<!--<Key>SetKey</Key>-->", $"<Key>{os.productKey}</Key>");
+  }
+    
+  if(false == String.IsNullOrWhiteSpace(os.imageName))
+  {
+    Context.ReplaceRegexInFiles(newAutoattendFile, @"(<Key>\/IMAGE\/NAME.*\r?\n.*<Value>).+?(<\/Value>)", $"$1{os.imageName}$2");
+  }
+
+    string packer_cmd = $"-var \"os_name={os.osName}\" -var \"answer_file={autoAttendFile}\"  -var \"ram_size={os.ramSize}\" -var \"iso_checksum={os.isoChecksum}\" -var \"iso_checksum_type={os.isoChecksumType}\" -var \"iso_url={os.isoURL}\" -var \"guest_os_type={os.guestOSType}\" -var \"full_os_name={os.Name}\" {source_path_var} {json_file_path}";
 
   Information(packer_cmd);
 
@@ -114,44 +147,44 @@ Task("clean")
     }
 });
 
-// VirtualBox Tasks
-Task("virtualbox-01-windows-base")
+// Hypervstep Tasks
+Task("hypervstep-01-windows-base")
   .Does(() =>
 {
-    string jsonToBuild = $"{virtualBoxBuilderPath}/01-windows-base.json";
+    string jsonToBuild = $"{hypervstepBuilderPath}/01-windows-base.json";
     StartProcess("packer", RunPacker(OSES, "", jsonToBuild));
 });
 
-Task("virtualbox-02-win_updates-wmf5")
-  .IsDependentOn("virtualbox-01-windows-base")
+Task("hypervstep-02-win_updates-wmf5")
+  .IsDependentOn("hypervstep-01-windows-base")
   .Does(() =>
 {
-    string jsonToBuild = $"{virtualBoxBuilderPath}/02-win_updates-wmf5.json";
-    StartProcess("packer", RunPacker(OSES, "./output-{0}-base/{0}-base.ovf", jsonToBuild));
+    string jsonToBuild = $"{hypervstepBuilderPath}/02-win_updates-wmf5.json";
+    StartProcess("packer", RunPacker(OSES, "./output-{0}-base/", jsonToBuild));
 });
 
-Task("virtualbox-03-cleanup")
-  .IsDependentOn("virtualbox-02-win_updates-wmf5")
+Task("hypervstep-03-cleanup")
+  .IsDependentOn("hypervstep-02-win_updates-wmf5")
   .Does(() =>
 {
-    string jsonToBuild = $"{virtualBoxBuilderPath}/03-cleanup.json";
-    StartProcess("packer", RunPacker(OSES, "./output-{0}-updates_wmf5/{0}-updates_wmf5.ovf", jsonToBuild));
+    string jsonToBuild = $"{hypervstepBuilderPath}/03-cleanup.json";
+    StartProcess("packer", RunPacker(OSES, "./output-{0}-updates_wmf5/", jsonToBuild));
 });
 
-Task("virtualbox-local")
-  .IsDependentOn("virtualbox-03-cleanup")
+Task("hypervstep-local")
+  .IsDependentOn("hypervstep-03-cleanup")
   .Does(() =>
 {
-    string jsonToBuild = $"{virtualBoxBuilderPath}/04-local.json";
-    StartProcess("packer", RunPacker(OSES, "./output-{0}-cleanup/{0}-cleanup.ovf", jsonToBuild));
+    string jsonToBuild = $"{hypervstepBuilderPath}/04-local.json";
+    StartProcess("packer", RunPacker(OSES, "./output-{0}-cleanup/", jsonToBuild));
 });
 
-Task("virtualbox-vagrant-cloud")
-  .IsDependentOn("virtualbox-03-cleanup")
+Task("hypervstep-vagrant-cloud")
+  .IsDependentOn("hypervstep-03-cleanup")
   .Does(() =>
 {
-    string jsonToBuild = $"{virtualBoxBuilderPath}/04-vagrant-cloud.json";
-    StartProcess("packer", RunPacker(OSES, "./output-{0}-cleanup/{0}-cleanup.ovf", jsonToBuild));
+    string jsonToBuild = $"{hypervstepBuilderPath}/04-vagrant-cloud.json";
+    StartProcess("packer", RunPacker(OSES, "./output-{0}-cleanup/", jsonToBuild));
 });
 
 // Hyper-V Tasks

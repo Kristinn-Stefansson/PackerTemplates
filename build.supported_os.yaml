@@ -4,21 +4,26 @@
   guestOSType: Windows2012_64
   isoURL: http://care.dlservice.microsoft.com/dl/download/6/2/A/62A76ABB-9990-4EFC-A4FE-C7D698DAEB96/9600.17050.WINBLUE_REFRESH.140317-1640_X64FRE_SERVER_EVAL_EN-US-IR3_SSS_X64FREE_EN-US_DV9.ISO
   isoChecksum: 849734f37346385dac2c101e4aacba4626bb141c
+  isoChecksumType: sha1
 - Name: Windows2012R2
   osName: win2012r2
   guestOSType: Windows2012_64
   isoChecksum: 849734f37346385dac2c101e4aacba4626bb141c
+  isoChecksumType: sha1
   isoURL: http://care.dlservice.microsoft.com/dl/download/6/2/A/62A76ABB-9990-4EFC-A4FE-C7D698DAEB96/9600.17050.WINBLUE_REFRESH.140317-1640_X64FRE_SERVER_EVAL_EN-US-IR3_SSS_X64FREE_EN-US_DV9.ISO
 - Name: Windows2016StdCore
   osName: win2016stdcore
   guestOSType: Windows2012_64
   isoChecksum: 3bb1c60417e9aeb3f4ce0eb02189c0c84a1c6691
+  isoChecksumType: sha1
   isoURL: http://care.dlservice.microsoft.com/dl/download/1/6/F/16FA20E6-4662-482A-920B-1A45CF5AAE3C/14393.0.160715-1616.RS1_RELEASE_SERVER_EVAL_X64FRE_EN-US.ISO
 - Name: Windows2016
   osName: win2016std
   guestOSType: Windows2012_64
-  isoChecksum: 3bb1c60417e9aeb3f4ce0eb02189c0c84a1c6691
-  isoURL: http://care.dlservice.microsoft.com/dl/download/1/6/F/16FA20E6-4662-482A-920B-1A45CF5AAE3C/14393.0.160715-1616.RS1_RELEASE_SERVER_EVAL_X64FRE_EN-US.ISO
+  imageName: Windows Server 2016 SERVERDATACENTER
+  isoChecksum: E8ADEEBCD8076702593469E33CC2D092
+  isoChecksumType: md5
+  isoURL: /isofiles/en_windows_server_2016_updated_feb_2018_x64_dvd_11636692.iso
 # - Name: Windows10
 #   osName: win10
 #   guestOSType: Windows10_64

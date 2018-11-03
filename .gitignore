@@ -4,3 +4,5 @@ packer_cache/
 tools/*
 packages/*
 .fake/*
+isofiles/*.iso
+.vscode/settings.json

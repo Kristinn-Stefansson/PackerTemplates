@@ -44,7 +44,7 @@ http://cakebuild.net
 [CmdletBinding()]
 Param(
     [string]$Script = "build.cake",
-    [string]$Target = "virtualbox-local",
+    [string]$Target = "hypervstep-local",
     [ValidateSet("Release", "Debug")]
     [string]$Configuration = "Release",
     [ValidateSet("Quiet", "Minimal", "Normal", "Verbose", "Diagnostic")]
@@ -197,14 +197,14 @@ if ($Target -like 'hyperv*')
         throw "You need to install and enable Hyper-V to run the Hyper-V Builder."
     }
 
-    if (Get-VMSwitch -SwitchType External)
-    {
-        Write-Verbose "An external Hyper-V switch exists"
-    }
-    else
-    {
-        throw "You need to create an External Hyper-V switch so that Windows updates can be installed at build time."
-    }
+    # if (Get-VMSwitch -SwitchType External)
+    # {
+    #     Write-Verbose "An external Hyper-V switch exists"
+    # }
+    # else
+    # {
+    #     throw "You need to create an External Hyper-V switch so that Windows updates can be installed at build time."
+    # }
 }
 
 # Start Cake

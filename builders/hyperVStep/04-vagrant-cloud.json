@@ -1,33 +1,15 @@
 {
     "builders": [
         {
-            "type": "virtualbox-ovf",
-            "vboxmanage": [
-                [
-                    "modifyvm",
-                    "{{.Name}}",
-                    "--memory",
-                    "2048"
-                ],
-                [
-                    "modifyvm",
-                    "{{.Name}}",
-                    "--vram",
-                    "48"
-                ],
-                [
-                    "modifyvm",
-                    "{{.Name}}",
-                    "--cpus",
-                    "2"
-                ]
-            ],
-            "source_path": "{{user `source_path`}}",
+            "type": "hyperv-vmcx",
+            "clone_from_vmcx_path": "{{user `source_path`}}",
             "headless": "{{ user `headless` }}",
             "communicator": "winrm",
             "winrm_username": "vagrant",
             "winrm_password": "vagrant",
             "winrm_timeout": "12h",
+            "switch_name": "default switch",
+            "boot_wait": "10s",
             "shutdown_command": "C:/Windows/packer/PackerShutdown.bat",
             "shutdown_timeout": "1h",
             "output_directory": "./output-{{user `os_name`}}-{{user `image_name`}}/",
