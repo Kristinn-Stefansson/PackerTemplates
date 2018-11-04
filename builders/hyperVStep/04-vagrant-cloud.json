@@ -1,4 +1,14 @@
-{
+{,
+    "variables": {
+        "atlas_token": "{{env `ATLAS_TOKEN`}}",
+        "atlas_username": "{{env `ATLAS_USERNAME`}}",
+        "atlas_version": "{{env `ATLAS_VERSION`}}",
+        "full_os_name": "",
+        "headless": "true",
+        "image_name": "atlas-upload",
+        "os_name": "",
+        "source_path": ""
+    },
     "builders": [
         {
             "type": "hyperv-vmcx",
@@ -39,15 +49,5 @@
                 "access_token": "{{user `atlas_token`}}"
             }
         ]
-    ],
-    "variables": {
-        "atlas_token": "{{env `ATLAS_TOKEN`}}",
-        "atlas_username": "{{env `ATLAS_USERNAME`}}",
-        "atlas_version": "{{env `ATLAS_VERSION`}}",
-        "full_os_name": "",
-        "headless": "true",
-        "image_name": "atlas-upload",
-        "os_name": "",
-        "source_path": ""
-    }
+    ]
 }

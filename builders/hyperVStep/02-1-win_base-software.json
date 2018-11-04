@@ -1,0 +1,76 @@
+{
+    "variables": {
+        "os_name": "",
+        "ram_size": "{{ user `ram_size` }}",
+        "headless": "true",
+        "source_path": "",
+        "image_name": "base-software",
+
+        "image_folder": "C:\\image",
+        "commit_file": "C:\\image\\commit.txt",
+        "metadata_file": "C:\\image\\metadata.txt",
+        "helper_script_folder": "C:\\Program Files\\WindowsPowerShell\\Modules\\",
+        "commit_id": "LATEST",
+        "install_user": "vagrant",
+        "install_password": "vagrant"
+    },
+    "builders": [
+        {
+            "type": "hyperv-vmcx",
+            "clone_from_vmcx_path": "{{user `source_path`}}",
+            "ram_size": "{{ user `ram_size` }}",
+            "vm_name": "{{user `os_name`}}-{{ user `image_name`}}",
+            "guest_additions_mode": "disable",
+            "headless": "{{ user `headless` }}",
+            "communicator": "winrm",
+            "winrm_username": "{{ user `install_user` }}",
+            "winrm_password": "{{ user `install_password` }}",
+            "winrm_timeout": "12h",
+            "switch_name": "default switch",
+            "boot_wait": "10s",
+            "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+            "shutdown_timeout": "1h",
+            "output_directory": "./output-{{user `os_name`}}-{{ user `image_name`}}/"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "powershell",
+            "inline":[
+                "New-Item -Path {{user `image_folder`}} -ItemType Directory -Force",
+                "Write-Output {{user `commit_id`}} > {{user `commit_file`}}",
+                "Write-Host (Get-Content -Path {{user `commit_file`}})"
+            ]
+        },
+        {
+            "type": "file",
+            "source": "scripts/ImageHelpers",
+            "destination": "{{user `helper_script_folder`}}"
+        },
+        {
+            "type": "windows-shell",
+            "inline": [
+                "net user {{user `install_user`}} {{user `install_password`}} /add /passwordchg:no /passwordreq:yes /active:yes /Y" ,
+                "net localgroup Administrators {{user `install_user`}} /add",
+                "winrm set winrm/config/service/auth @{Basic=\"true\"}",
+                "winrm get winrm/config/service/auth"
+            ]
+        },
+        {
+            "type": "powershell",
+            "inline": [
+                "if (-not ((net localgroup Administrators) -contains '{{user `install_user`}}')) { exit 1 }"
+            ]
+        },
+        {
+            "type": "powershell",
+            "scripts":[
+                "scripts/Installers/Vs2017/Initialize-VM.ps1"
+            ]
+        },
+        {
+            "type": "windows-restart",
+            "restart_timeout": "1h"
+        }
+    ]
+}

@@ -6,3 +6,4 @@ packages/*
 .fake/*
 isofiles/*.iso
 .vscode/settings.json
+**/notes.md

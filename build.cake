@@ -130,6 +130,7 @@ public ProcessSettings RunPacker(OSToBuild os, string source_path, string json_f
 Task("clean")
   .Does(() =>
 {
+    Information("Clean was invoked");
     var directoriesToClean = GetDirectories("./output-*/**");
 
     var deleteSettings = new DeleteDirectorySettings {
@@ -163,6 +164,13 @@ Task("hypervstep-02-win_updates-wmf5")
     StartProcess("packer", RunPacker(OSES, "./output-{0}-base/", jsonToBuild));
 });
 
+Task("hypervstep-02-1-win_base-software")
+//   .IsDependentOn("hypervstep-01-windows-base")
+  .Does(() =>
+{
+    string jsonToBuild = $"{hypervstepBuilderPath}/02-1-win_base-software.json";
+    StartProcess("packer", RunPacker(OSES, "./output-{0}-base/", jsonToBuild));
+});
 Task("hypervstep-03-cleanup")
   .IsDependentOn("hypervstep-02-win_updates-wmf5")
   .Does(() =>

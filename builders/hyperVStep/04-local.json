@@ -1,4 +1,10 @@
 {
+    "variables": {
+        "headless": "true",
+        "os_name": "",
+        "source_path": "",
+        "image_name": "pkg-vagrant"
+    },
     "builders": [
         {
             "type": "hyperv-vmcx",
@@ -32,11 +38,5 @@
                 "vagrantfile_template": "vagrantfile-windows.template"
             }
         ]
-    ],
-    "variables": {
-        "headless": "true",
-        "os_name": "",
-        "source_path": "",
-        "image_name": "pkg-vagrant"
-    }
+    ]
 }

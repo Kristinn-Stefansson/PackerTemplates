@@ -72,14 +72,16 @@ $chocoExePath = 'C:\ProgramData\Chocolatey\bin'
 
 if ($($env:Path).ToLower().Contains($($chocoExePath).ToLower())) {
     Write-Host "Chocolatey found in PATH, skipping install..."
-    Exit
 }
-
-# Add to system PATH
-$systemPath = [Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
-$systemPath += ';' + $chocoExePath
-[Environment]::SetEnvironmentVariable("PATH", $systemPath, [System.EnvironmentVariableTarget]::Machine)
-
+else
+{
+    # Add to system PATH
+    $systemPath = [Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::Machine)
+    $systemPath += ';' + $chocoExePath
+    [Environment]::SetEnvironmentVariable("PATH", $systemPath, [System.EnvironmentVariableTarget]::Machine)
+    # Run the installer
+    Invoke-Expression ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
+}
 # Update local process' path
 $userPath = [Environment]::GetEnvironmentVariable('Path', [System.EnvironmentVariableTarget]::User)
 if ($userPath) {
@@ -89,8 +91,6 @@ else {
     $env:Path = $systemPath
 }
 
-# Run the installer
-Invoke-Expression ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1'))
 
 # Turn off confirmation
 choco feature enable -n allowGlobalConfirmation
@@ -101,18 +101,20 @@ choco install webpicmd -y
 
 # Expand disk size of OS drive
 
-New-Item -Path d:\ -Name cmds.txt -ItemType File -Force
+if(Test-Path -Path "d:" -ErrorAction SilentlyContinue)
+{
+    New-Item -Path d:\ -Name cmds.txt -ItemType File -Force
 
-Add-Content -Path d:\cmds.txt "SELECT VOLUME=C`r`nEXTEND"
+    Add-Content -Path d:\cmds.txt "SELECT VOLUME=C`r`nEXTEND"
 
-$expandResult = (diskpart /s 'd:\cmds.txt')
+    $expandResult = (diskpart /s 'd:\cmds.txt')
 
-Write-Host $expandResult
+    Write-Host $expandResult
 
-Write-Host "Disk sizes after expansion"
+    Write-Host "Disk sizes after expansion"
 
-wmic logicaldisk get size,freespace,caption
-
+    wmic logicaldisk get size,freespace,caption
+}
 
 # Adding description of the software to Markdown
 

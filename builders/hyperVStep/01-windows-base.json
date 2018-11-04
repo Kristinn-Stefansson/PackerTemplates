@@ -1,4 +1,14 @@
 {
+  "variables": {
+    "os_name": "",
+    "headless": "true",
+    "ram_size": "1024",
+    "iso_checksum": "",
+    "iso_url": "",
+    "guest_os_type": "",
+    "iso_checksum_type": "sha1",
+    "answer_file": ""
+  },
   "builders": [
     {
       "type": "hyperv-iso",
@@ -31,15 +41,5 @@
       "elevated_user": "vagrant",
       "elevated_password": "vagrant"
     }
-  ],
-  "variables": {
-    "os_name": "",
-    "headless": "true",
-    "ram_size": "1024",
-    "iso_checksum": "",
-    "iso_url": "",
-    "guest_os_type": "",
-    "iso_checksum_type": "sha1",
-    "answer_file": ""
-  }
+  ]
 }

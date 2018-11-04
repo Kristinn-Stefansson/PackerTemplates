@@ -1,4 +1,10 @@
 {
+    "variables": {
+        "os_name": "",
+        "headless": "true",
+        "source_path": "",
+        "image_name": "updates_wmf5"
+    },
     "builders": [
         {
             "type": "hyperv-vmcx",
@@ -133,11 +139,5 @@
             "type": "windows-restart",
             "restart_timeout": "1h"
         }
-    ],
-    "variables": {
-        "os_name": "",
-        "headless": "true",
-        "source_path": "",
-        "image_name": "updates_wmf5"
-    }
+    ]
 }
