@@ -4,8 +4,8 @@ if([environment]::OSVersion.version.Major -ge 6) {
 
   # Get network connections
   Get-NetConnectionProfile | Where-Object {$_.NetworkCategory -ne "Private"} | ForEach-Object {
-  	Write-Host $_.Name"category was previously set to"$_.NetworkCategory
-  	$_.NetworkCategory = "Private"
+  	Write-Host $_.Name"category, alias "$_.InterfaceAlias" was previously set to"$_.NetworkCategory
+    $_ | Set-NetConnectionProfile -NetworkCategory Private
   	Write-Host $_.Name"changed to category"$_.NetworkCategory
   }
 }
